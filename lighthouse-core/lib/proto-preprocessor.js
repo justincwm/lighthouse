@@ -26,19 +26,11 @@ function processForProto(result) {
   // Note: This is not strictly required for conversion if protobuf parsing is set to
   //       'ignore unknown fields' in the language of conversion.
   if (reportJson.configSettings) {
-    // Filter out unwanted fields
-    const valid = ['emulatedFormFactor', 'locale', 'onlyCategories'];
+    // The settings that are in both proto and LHR
+    const {emulatedFormFactor, locale, onlyCategories} = reportJson.configSettings;
 
-    const minifiedSettings = Object.keys(reportJson.configSettings)
-      .filter(key => valid.includes(key))
-      .reduce((obj, key) => {
-        // @ts-ignore
-        obj[key] = reportJson.configSettings[key];
-        return obj;
-      }, {});
-
-    // @ts-ignore
-    reportJson.configSettings = minifiedSettings;
+    // @ts-ignore - intentionally only a subset of settings.
+    reportJson.configSettings = {emulatedFormFactor, locale, onlyCategories};
   }
 
   // Remove runtimeError if it is NO_ERROR

@@ -23,13 +23,22 @@ function processForProto(result) {
   const reportJson = JSON.parse(result);
 
   // Clean up the configSettings
+  // Note: This is not strictly required for conversion if protobuf parsing is set to
+  //       'ignore unknown fields' in the language of conversion.
   if (reportJson.configSettings) {
-    // make sure the 'output' field is an array
-    if (reportJson.configSettings.output) {
-      if (!Array.isArray(reportJson.configSettings.output)) {
-        reportJson.configSettings.output = [reportJson.configSettings.output];
-      }
-    }
+    // Filter out unwanted fields
+    const valid = ['emulatedFormFactor', 'locale', 'onlyCategories'];
+
+    const minifiedSettings = Object.keys(reportJson.configSettings)
+      .filter(key => valid.includes(key))
+      .reduce((obj, key) => {
+        // @ts-ignore
+        obj[key] = reportJson.configSettings[key];
+        return obj;
+      }, {});
+
+    // @ts-ignore
+    reportJson.configSettings = minifiedSettings;
   }
 
   // Remove runtimeError if it is NO_ERROR
